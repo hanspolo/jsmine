@@ -1,11 +1,11 @@
 function test()
 {
-/*
+
 	loadHtml('./tmpl1.html', function(data) {
 		Template.set('title', 'Hello World');
 		Template.set('place', 'World');
 		Template.html = data;
-		alert(Template.serve());
+		printHtml('Template 1', Template.serve());
 	});
 
 	loadHtml('./tmpl2.html', function(data) {
@@ -18,7 +18,7 @@ function test()
 
 		Template.set('entries', entries);
 		Template.html = data;
-		alert(Template.serve());
+		printHtml('Template 2', Template.serve());
 	});
 
 
@@ -32,7 +32,7 @@ function test()
 
 		Template.set('entries', entries);
 		Template.html = data;
-		alert(Template.serve());
+		printHtml('Template 3', Template.serve());
 	});
 
 	loadHtml('./tmpl4.html', function(data) {
@@ -40,9 +40,9 @@ function test()
 		Template.set('btestPositive', true);
 		Template.set('btestNegative', false);
 		Template.html = data;
-		alert(Template.serve());
+		printHtml('Template 4', Template.serve());
 	});
-*/
+
 	loadHtml('./tmpl5.html', function(data) {
 		var entries = new Array();
 		entries[0] = new Object();
@@ -53,7 +53,7 @@ function test()
 
 		Template.set('entries', entries);
 		Template.html = data;
-		alert(Template.serve());
+		printHtml('Template 5', Template.serve());
 	});
 
 }
@@ -67,3 +67,8 @@ function loadHtml(url, callback)
 	});
 }
 
+function printHtml(title, text)
+{
+	text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+	$('#output').append('<div><h2>' + title + '</h2><pre>' + text + '</pre></div>');
+}
