@@ -1,5 +1,6 @@
 function test()
 {
+/*
 	loadHtml('./tmpl1.html', function(data) {
 		Template.set('title', 'Hello World');
 		Template.set('place', 'World');
@@ -19,6 +20,7 @@ function test()
 		Template.html = data;
 		alert(Template.serve());
 	});
+
 
 	loadHtml('./tmpl3.html', function(data) {
 		var entries = new Array();
@@ -40,6 +42,20 @@ function test()
 		Template.html = data;
 		alert(Template.serve());
 	});
+*/
+	loadHtml('./tmpl5.html', function(data) {
+		var entries = new Array();
+		entries[0] = new Object();
+		entries[1] = new Object();
+
+		entries[0]['name'] = 'Eintrag 1';
+		entries[1]['name'] = 'Eintrag 2';
+
+		Template.set('entries', entries);
+		Template.html = data;
+		alert(Template.serve());
+	});
+
 }
 
 
