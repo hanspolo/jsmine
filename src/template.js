@@ -1,14 +1,38 @@
+/*
+* ----------------------------------------------------------------------------
+* "THE BEER-WARE LICENSE" (Revision 42):
+* <philipp-hirsch@gmx.net> wrote this file. As long as you retain this notice you
+* can do whatever you want with this stuff. If we meet some day, and you think
+* this stuff is worth it, you can buy me a beer in return Philipp Hirsch
+* ----------------------------------------------------------------------------
+*/
+
+/**
+ *
+ */
 var Template = 
 {
 	data: new Object(),
 	html: "",
 
+	/**
+	 *
+	 *
+	 *	@param String key
+	 *	@param Mixed value
+	 */
 	set:
 	function (key, value)
 	{
 		this.data[key] = value;
 	},
 
+	/**
+	 *
+	 *
+	 *	@param String key
+	 *	@return Mixed 
+	 */
 	get:
 	function (key)
 	{
@@ -23,98 +47,89 @@ var Template =
 		return temp;
 	},
 
+	/**
+	 *
+	 *
+	 *	@return String
+	 */
 	serve: 
 	function ()
 	{
-		// Translate Repeat and Check
-		var result = this.translate(this.html);
-		// Translate single Variables
-		var result = this.translate(result);
+		var root = new Node(this.html);
+		TemplateParser.tree = new Tree(root);
+		TemplateParser.parse(this.html, root);
+		return TemplateParser.build();
+	}
+};
 
-		return result;
+var FUNC_REGEX = /<J:[a-zA-Z]{4,6}([ a-zA-Z+="]+{{[^}]}}){1,3}\">/g;
+var FUNC_END_REGEX = /<\/J:[a-zA-Z]{4,6}>/g
+var EXP_REGEX = /{{[^}]+}}/g;
+
+var CLOSINGTAG_LENGTH_REPEAT = 11;
+var CLOSINGTAG_LENGTH_CHECK = 10;
+var CLOSINGTAG_LENGTH_FALSE = 10;
+var CLOSINGTAG_LENGTH_TRUE = 9;
+
+/**
+ *
+ */
+var TemplateParser =
+{
+	tree: null,
+
+	/**
+	 *
+	 *
+	 *	@param String text
+	 *	@param Node parentNode
+	 *	@return Integer
+	 */
+	parse: function (text, parentNode)
+	{
+		var firstOpeningFuncBegin = text.indexOf('<J:');
+		var firstClosingFuncBegin = text.indexOf('</J:');
+
+		var node = new Node();
+		
+		// No Function in this Page
+		if (firstOpeningFuncBegin < 0 && firstClosingFuncBegin < 0)
+			return ;
+
+		// There is a next Function, so add the node to the tree
+		parentNode.addChild(node);
+
+		// Has this Function another Subfunction?
+		var nextOpeningFuncBegin = text.indexOf('<J:', firstOpeningFuncBegin + 1);
+
+		// If not, so init this Function and return
+		if (nextOpeningFuncBegin < 0)
+		{
+			var firstClosingFuncEnd = text.indexOf('>', firstClosingFuncBegin);
+
+			node.setText(text.substring(firstOpeningFuncBegin, firstClosingFuncEnd + 1));
+			return firstClosingFuncEnd + 1;
+		}
+		
+		// There is another Subfunction, so open the Parser recursively
+		var lastClosingFuncEnd = this.parse(text.substring(nextOpeningFuncBegin), node);
+
+		// Get the end of this Function and return
+		var nextClosingFuncBegin = text.indexOf('</J:', lastClosingFuncEnd);
+		var nextClosingFuncEnd = text.indexOf('>', nextClosingFuncBegin);
+
+		node.setText(text.substring(firstOpeningFuncBegin, nextClosingFuncEnd));
+		return nextClosingFuncEnd + 1;
 	},
 
-	translate:
-	function (text)
+	/**
+	 *
+	 *
+	 *	@param Array data
+	 *	@return String
+	 */
+	build: function (data) 
 	{
-		alert(text);
-		var firstRepeat = text.indexOf('<J:repeat');
-		var firstCheck = text.indexOf('<J:check');
-		var lastIndex, firstEnd, lastEnd;
 
-		// Neither repeat nor check
-		// So translate the Variables
-		if ((firstRepeat == null || firstRepeat < 0) &&
-			(firstCheck == null || firstCheck < 0))
-		{
-			var matches = text.match(/\{\{\@[a-zA-Z0-9._]+\}\}/g);
-			for (var i = 0; matches != null && i < matches.length; i++)
-			{
-				var tmpVar = matches[i].substring(3, matches[i].length - 2);
-				var parts = text.split(matches[i]);
-
-				text = parts.join(this.get(tmpVar));
-			}
-
-			return text;
-		}
-
-		// Execute a repeat
-		if (firstCheck == null || firstCheck < 0 ||
-			firstRepeat < firstCheck)
-		{
-			lastIndex = text.lastIndexOf('</J:repeat>');
-			firstEnd = text.indexOf('>', firstRepeat);
-			lastEnd = text.indexOf('>', lastIndex);
-
-			var group, key, value, obj, tmpText = text.substring(0, firstRepeat);
-			var func = text.substring(firstRepeat, firstEnd + 1);
-
-			var parts = func.match(/\{\{\@[a-zA-Z0-9._]+\}\}/g);
-
-			for (var i = 0; parts != null && i < parts.length; i++)
-				parts[i] = parts[i].substring(3, parts[i].length - 2);
-
-			group = parts[0];
-
-			// Group and Value
-			if (parts != null && parts.length == 2)
-			{
-				key = null;
-				value = parts[1];
-			}
-			// Group, Key and Value
-			else if (parts != null && parts.length == 3)
-			{
-				key = parts[1];
-				value = parts[2];
-			}
-			else
-			{
-				alert("Fehler ab " + text);
-				return ;
-			}
-
-			var obj = this.get(group);
-
-			for (var j = 0; obj != null && j < obj.length; j++)
-			{
-				if (key != null)
-					this.set(key, j);
-				this.set(value, obj[j]);
-				tmpText += this.translate(text.substring(firstEnd + 1, lastIndex));
-			}
-
-			tmpText += text.substring(lastEnd + 1);
-
-			return tmpText;
-		}
-		// Execute a Check
-		else
-		{
-			lastIndex = text.lastIndexOf('</J:check>');
-		}
-
-		return text;
 	}
 };
