@@ -214,7 +214,7 @@ var Template =
 		}
 		else
 		{
-			return text.substr(0, 10) + " isn't a correct functionname.";
+			return text.substr(0, 10) + " isn't a correct function name.";
 		}
 
 		return text;
