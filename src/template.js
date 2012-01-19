@@ -16,7 +16,8 @@ var __TEMPLATE_REGEX_FALSE_CLOSING = /<\/J:false[ ]*>/g;
 var __TEMPLATE_REGEX_TRUE = /<J:true[ ]*>/g;
 var __TEMPLATE_REGEX_TRUE_CLOSING = /<\/J:true[ ]*>/g;
 var __TEMPLATE_REGEX_EXPR = /{{[^}]+}}/g;
-var __TEMPLATE_REGEX_ARG = /a/g;
+var __TEMPLATE_REGEX_ARG = /[a-zA-Z]+="{{[^}"]+}}"/g;
+var __TEMPLATE_REGEX_VAR = /\@[a-zA-Z0-9.]+/g;
 
 /**
  *	Creates a new and empty Template
@@ -30,7 +31,7 @@ function Template()
 
 Template.prototype.setHtml = function(html)
 {
-	this.__html = html.replace(/\n/g, '');
+	this.__html = html.replace(/\n/g, '').replace(/\t/g, '');
 }	
 
 /**
@@ -41,6 +42,8 @@ Template.prototype.setHtml = function(html)
  */
 Template.prototype.set = function(key, value)
 {
+	key = key.replace(/@/g, '');
+
 	this.__data[key] = value;
 };
 
@@ -54,6 +57,8 @@ Template.prototype.get = function(key)
 {
 	try 
 	{
+		key = key.replace(/@/g, '');
+
 		var str = key.split('.');
 		var temp = this.__data[str[0]];
 
@@ -68,9 +73,32 @@ Template.prototype.get = function(key)
 	}
 };
 
+/**
+ *	Interprets an expression and returns its result
+ *
+ *	@param String expr
+ *	@return Mixed
+ */
 Template.prototype.expr = function(expr)
 {
-	return "EXPR";	
+	var vars = expr.match(__TEMPLATE_REGEX_VAR);
+
+	for (var i = 0; vars != null && i < vars.length; i++)
+	{
+		if (expr.length == vars[i].length)
+			return this.get(vars[i]);
+
+		expr = expr.split(vars[i]).join(this.get(vars[i]));
+	}
+
+	try
+	{
+		return eval(expr);
+	}
+	catch (err)
+	{
+		return expr;
+	}
 }
 
 /**
@@ -81,8 +109,10 @@ Template.prototype.expr = function(expr)
  */
 Template.prototype.serve = function()
 {
-	this.parse();
-	return this.build();
+	if(this.parse())
+		return this.build();
+	else
+		return "Failure while building";
 };
 
 /**
@@ -133,12 +163,37 @@ Template.prototype.parse = function()
 		tmp_match = repeat_matches[r];
 		tmp_replace = "'; %s _txt += '";
 
-		var groupexpr = "group";
-		var valueexpr = "value";
+		var args;
+		var expr;
+		var groupexpr;
+		var valueexpr;
+		var keyexpr;
 
-		tmp_for = "for (var i" + r + " = 0; i" + r + " < this.expr('" + groupexpr + "').length; i" + r +"++) {";
-		tmp_for +=  "this.set('" + valueexpr + "', this.expr('" + groupexpr + "')[i" + r + "]);";
-		// Temporary
+		args = tmp_match.match(__TEMPLATE_REGEX_ARG);
+		if (args.length < 2 || args.length > 3)
+			return ;
+
+		for (var a in args)
+		{
+			args[a] = args[a].split("=");
+
+			expr = args[a][1].replace(/[{}"]/g, '');
+
+			if (args[a][0] == 'group')
+				groupexpr = expr;
+			else if (args[a][0] == 'key')
+				keyexpr = expr;
+			else if (args[a][0] == 'value')
+				valueexpr = expr;
+			else
+				return ;
+		}
+
+		tmp_for = "for (var i" + r + " in this.expr('" + groupexpr + "')) {";
+		if (keyexpr != null)
+			tmp_for += "this.set('" + keyexpr + "', i" + r + ");";
+		tmp_for +=  "this.set('" + valueexpr + "', (this.expr('" + groupexpr + "'))[i" + r + "]);";
+
 		tmp_replace = tmp_replace.replace(/%s/g, tmp_for);
 
 		text = text.split(tmp_match).join(tmp_replace);
@@ -147,9 +202,20 @@ Template.prototype.parse = function()
 	// Replace all Checks
 	for (var c = 0; check_matches != null && c < check_matches.length; c++)
 	{
-		var expr; 
+		var args;
+		var expr;
 		tmp_match = check_matches[c];
-		expr = tmp_match.replace(/({|})/g, '');
+
+		args = tmp_match.match(__TEMPLATE_REGEX_ARG);
+
+		if (args.length != 1)
+			return ;
+
+		args = args[0].split("=");
+		if (args[0] != 'if')
+			return;
+		
+		expr = args[1].replace(/[{}"]/g, '');;
 		tmp_replace = "';  if (this.expr('" + expr + "')) { _txt += '";
 
 		text = text.split(tmp_match).join(tmp_replace);
@@ -168,9 +234,8 @@ Template.prototype.parse = function()
 	for (var e = 0; expr_matches != null && e < expr_matches.length; e++)
 	{
 		var expr;
-
 		tmp_match = expr_matches[e];
-		expr = tmp_match.replace(/({|})/g, '');
+		expr = tmp_match.replace(/[{}"]/g, '');
 		tmp_replace = "' + this.expr('" + expr + "') + '";
 
 		text = text.split(tmp_match).join(tmp_replace);
@@ -178,6 +243,8 @@ Template.prototype.parse = function()
 
 	// Set the text as output
 	this.__output = text;
+	console.debug(text);
+	return true;
 };
 
 /**

@@ -54,6 +54,7 @@ function test()
 		entries[0]['name'] = 'Eintrag 1';
 		entries[1]['name'] = 'Eintrag 2';
 
+console.debug(entries);
 		var t = new Template();
 		t.set('entries', entries);
 		t.setHtml(data);
