@@ -243,7 +243,6 @@ Template.prototype.parse = function()
 
 	// Set the text as output
 	this.__output = text;
-	console.debug(text);
 	return true;
 };
 
