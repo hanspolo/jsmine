@@ -17,7 +17,7 @@ var __TEMPLATE_REGEX_TRUE = /<J:true[ ]*>/g;
 var __TEMPLATE_REGEX_TRUE_CLOSING = /<\/J:true[ ]*>/g;
 var __TEMPLATE_REGEX_EXPR = /{{[^}]+}}/g;
 var __TEMPLATE_REGEX_ARG = /[a-zA-Z]+="{{[^}"]+}}"/g;
-var __TEMPLATE_REGEX_VAR = /\@[a-zA-Z0-9.]+/g;
+var __TEMPLATE_REGEX_VAR = /\@[a-zA-Z0-9._]+/g;
 
 /**
  *	Creates a new and empty Template
@@ -29,6 +29,11 @@ function Template()
 	this.__output;
 }
 
+/**
+ *	Sets the String that will be translated
+ *
+ *	@param String html
+ */
 Template.prototype.setHtml = function(html)
 {
 	this.__html = html.replace(/\n/g, '').replace(/\t/g, '');
@@ -120,7 +125,7 @@ Template.prototype.serve = function()
  */
 Template.prototype.parse = function()
 {
-	var text = "_txt = '" + this.__html + "'";
+	var text = "var _txt = '" + this.__html + "'";
 	
 	// Remove all unused Functions
 	text = text.replace(__TEMPLATE_REGEX_TRUE, '');
@@ -133,7 +138,6 @@ Template.prototype.parse = function()
 	var repeat_matches = text.match(__TEMPLATE_REGEX_REPEAT);
 	var check_matches = text.match(__TEMPLATE_REGEX_CHECK);
 	var false_matches = text.match(__TEMPLATE_REGEX_FALSE);
-	var expr_matches = text.match(__TEMPLATE_REGEX_EXPR);
 
 	var tmp_match;
 	var tmp_replace;
@@ -230,6 +234,9 @@ Template.prototype.parse = function()
 		text = text.split(tmp_match).join(tmp_replace);
 	}
 	
+	// Find the remaining Expressions
+	var expr_matches = text.match(__TEMPLATE_REGEX_EXPR);
+
 	// Replace all Expressions
 	for (var e = 0; expr_matches != null && e < expr_matches.length; e++)
 	{
