@@ -179,6 +179,11 @@ Template.prototype.parse = function()
 
 		for (var a in args)
 		{
+			// Is a an Integer?
+			a = parseInt(a);
+			if (isNaN(a))
+				continue;
+
 			args[a] = args[a].split("=");
 
 			expr = args[a][1].replace(/[{}"]/g, '');
