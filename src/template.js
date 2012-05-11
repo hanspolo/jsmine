@@ -268,3 +268,5 @@ Template.prototype.build = function()
 	eval(this.__output);
 	return _txt;
 };
+
+exports.Template = Template;
