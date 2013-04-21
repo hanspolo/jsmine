@@ -269,4 +269,4 @@ Template.prototype.build = function()
 	return _txt;
 };
 
-exports.Template = Template;
+//exports.Template = Template;

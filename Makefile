@@ -1,7 +1,8 @@
 all:
-	mkdir mini 
-	jsmin < src/template.js > mini/jsmine.js
+	mkdir -p bin
+	jsmin < src/template.js > bin/jsmine.js
+	jsmin < src/jquery.js >> bin/jsmine.js
 
 clean:
-	rm mini/jsmine.js
-	rmdir mini
+	rm bin/jsmine.js
+	rmdir bin

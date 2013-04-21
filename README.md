@@ -1,9 +1,3 @@
-# JSmine
-
-## About
-JSMine is a template engine for JavaScript.
-
-## Install
 Run the Makefile to create a minified file.
 
 ## Documentation
@@ -22,6 +16,14 @@ When all data and the html code is set, call:
 	`Template.serve();`
 
 It returns the translated html code.
+
+### Use JSmine as jQuery Plugin
+To use JSmine as a jQuery Plugin, include the file and use:
+
+  `$.jsmine(template, data);`
+
+The template is the html code that will be replaced.
+Data is an list of data, that normally would be sad with Template.set(key, value);
 
 ### How to write a template
 The Templates can use HTML Code, but isn't committed to this.
