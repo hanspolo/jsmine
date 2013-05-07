@@ -36,23 +36,23 @@ If a part of a template should be repeated, there is a function for that.
 You can use the next listing, where @foo is the list, that will be iterated and @bar is the new name of a single entry of that list.
 The key is optional and will set the actual index to @key.
 
-	`<J:repeat group="{{@foo}}" [key="{{@key}}"] value="{{@bar}}">
+	`<repeat group="{{@foo}}" [key="{{@key}}"] value="{{@bar}}">
 		part that will be repeated
-	</J:repeat>`
+	</repeat>`
 
 To check, that a expression is true, use the check-function
 
-	`<J:check if="{{@tobeornottobe}}">
+	`<check if="{{@tobeornottobe}}">
 		part that will be executed, if the check succeeds
-	</J:check>`
+	</check>`
 
 To add a part that contains the code of a failing expression, you have to add a true and false sector.
 The order of true and false is (currently) required.
 
-	`<J:check...>
-		<J:true>expression was true</J:true>
-		<J:false>expression was false</J:false>
-	</J:check>`
+	`<check...>
+		<true>expression was true</true>
+		<false>expression was false</false>
+	</check>`
 
 ## License
 "THE BEER-WARE LICENSE" (Revision 42):
