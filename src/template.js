@@ -7,14 +7,14 @@
 * -------------------------------------------------------------------------
 */
 
-var __TEMPLATE_REGEX_CLOSING = /<\/J:[a-zA-Z ]+>/g;
-var __TEMPLATE_REGEX_INCLUDE = /<J:include[ ]+[a-zA-Z]+="{{[^}"]+}}"[ ]*>/g;
-var __TEMPLATE_REGEX_REPEAT = /<J:repeat([ ]+[a-zA-Z]+="{{[^}"]+}}"){2,3}[ ]*>/g;
-var __TEMPLATE_REGEX_CHECK = /<J:check[ ]+[a-zA-Z]+="{{[^}"]+}}"[ ]*>/g;
-var __TEMPLATE_REGEX_FALSE = /<J:false[ ]*>/g;
-var __TEMPLATE_REGEX_FALSE_CLOSING = /<\/J:false[ ]*>/g;
-var __TEMPLATE_REGEX_TRUE = /<J:true[ ]*>/g;
-var __TEMPLATE_REGEX_TRUE_CLOSING = /<\/J:true[ ]*>/g;
+var __TEMPLATE_REGEX_CLOSING = /<\/(include|repeat|check|false|true)>/g;
+var __TEMPLATE_REGEX_INCLUDE = /<include[ ]+[a-zA-Z]+="{{[^}"]+}}"[ ]*>/g;
+var __TEMPLATE_REGEX_REPEAT = /<repeat([ ]+[a-zA-Z]+="{{[^}"]+}}"){2,3}[ ]*>/g;
+var __TEMPLATE_REGEX_CHECK = /<check[ ]+[a-zA-Z]+="{{[^}"]+}}"[ ]*>/g;
+var __TEMPLATE_REGEX_FALSE = /<false[ ]*>/g;
+var __TEMPLATE_REGEX_FALSE_CLOSING = /<\/false[ ]*>/g;
+var __TEMPLATE_REGEX_TRUE = /<true[ ]*>/g;
+var __TEMPLATE_REGEX_TRUE_CLOSING = /<\/true[ ]*>/g;
 var __TEMPLATE_REGEX_EXPR = /{{[^}]+}}/g;
 var __TEMPLATE_REGEX_ARG = /[a-zA-Z]+="{{[^}"]+}}"/g;
 var __TEMPLATE_REGEX_VAR = /\@[a-zA-Z0-9._]+/g;
